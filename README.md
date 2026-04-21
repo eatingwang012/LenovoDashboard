@@ -68,3 +68,23 @@ npm run preview
 - `index.html`: Entry point.
 - `vite.config.ts`: Vite configuration.
 - `metadata.json`: Application metadata.
+
+## One-Click Publish To GitHub Pages
+
+This project is configured for automatic GitHub Pages deployment.
+
+### How to enable
+
+1. Push this repository to GitHub (default branch: `master`).
+2. Open repository `Settings` -> `Pages`.
+3. In `Source`, select `GitHub Actions`.
+4. Push to `master` (or run the `Deploy to GitHub Pages` workflow manually).
+
+### Final URL format
+
+- Project site URL:
+   `https://<github-username>.github.io/<repository-name>/`
+- Example:
+   `https://wangyiting.github.io/lenovodashboard/`
+
+After the workflow finishes, users can open the dashboard directly from that link.
