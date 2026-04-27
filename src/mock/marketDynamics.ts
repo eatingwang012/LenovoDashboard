@@ -1,0 +1,24 @@
+import type { MarketTimelineEvent, SupplyCategory } from "../schemas/marketDynamics";
+
+export const MARKET_DYNAMICS_BRANDS = ["All", "HP", "Dell", "Apple"] as const;
+
+/**
+ * Timeline event feed used by the Market Dynamics page.
+ */
+export const MARKET_TIMELINE_EVENTS: MarketTimelineEvent[] = [
+  { id: 2, brand: "HP", product: "OmniBook Ultra", monthOffset: -7, specs: "AMD Ryzen AI 300, 32GB RAM", pricing: "楼8,999", sellingPoints: "Premium AI PC, 30% battery life improvement", type: "product", date: "2025-09", link: "https://www.hp.com/" },
+  { id: 3, brand: "Dell", product: "XPS 13", monthOffset: -3, specs: "Snapdragon X Elite, Seamless Trackpad", pricing: "楼9,999", sellingPoints: "All-day battery, Ultra-portable", type: "product", date: "2026-01", link: "https://www.dell.com/" },
+  { id: 4, brand: "Apple", product: "MacBook Air M4", monthOffset: -1, specs: "M4 Chip, Enhanced Efficiency", pricing: "From 楼8,999", sellingPoints: "Efficiency benchmark, improved thermal threshold", type: "product", date: "2026-03", link: "https://www.apple.com/" },
+  { id: 6, brand: "Apple", product: "MacBook Pro M5", monthOffset: 6, specs: "M5 Chip Debut, Peak Performance", pricing: "Est. From 楼14,999", sellingPoints: "Dedicated AI Nucleus, Professional-grade Productivity Engine", type: "product", date: "2026-10", link: "https://www.apple.com/" },
+  { id: 7, brand: "Supply Chain", product: "DDR5 Spot Price Hike", monthOffset: -10, specs: "Hynix/Samsung 15% Production Cut", pricing: "Cost Increase 8%", sellingPoints: "Impacts Commercial Model Margins in H2", type: "supply", date: "2025-06", link: "#" },
+  { id: 8, brand: "Supply Chain", product: "High-end Panel Capacity Released", monthOffset: -2, specs: "BOE Gen 8.6 partially operational", pricing: "Cost Decrease 5%", sellingPoints: "Speeding up OLED penetration in mainstream models", type: "supply", date: "2026-02", link: "#" },
+  { id: 9, brand: "Supply Chain", product: "AI PC Chip Shortage Warning", monthOffset: 3, specs: "Insufficient NPU Packaging Capacity", pricing: "Spot Price Premium Risk", sellingPoints: "Estimated to impact Q3 premium thin-and-light shipments", type: "supply", date: "2026-07", link: "#" },
+];
+
+export const SUPPLY_CATEGORIES: SupplyCategory[] = [
+  { id: "cpu", name: "CPU / Processors", icon: "Cpu", metric: "Procurement Cost Index", past3m: "+2.5%", future3m: "+1.0%", trend: "Rising", driver: "Premium caused by advanced packaging capacity shortage for AI chips", priceTrend: [{ period: "25Q1", actual: 100 }, { period: "25Q2", actual: 102 }, { period: "25Q3", actual: 103 }, { period: "25Q4", actual: 105 }, { period: "26Q1", actual: 108 }, { period: "26Q2", actual: 110, forecast: 110 }, { period: "26Q3", forecast: 112 }, { period: "26Q4", forecast: 113 }] },
+  { id: "panel", name: "Display Panels", icon: "Monitor", metric: "Procurement Cost Index", past3m: "-3.2%", future3m: "-1.5%", trend: "Falling", driver: "Increased yield from Gen 8.x OLED lines across major fabs", priceTrend: [{ period: "25Q1", actual: 100 }, { period: "25Q2", actual: 98 }, { period: "25Q3", actual: 96 }, { period: "25Q4", actual: 93 }, { period: "26Q1", actual: 90 }, { period: "26Q2", actual: 88, forecast: 88 }, { period: "26Q3", forecast: 86 }, { period: "26Q4", forecast: 85 }] },
+  { id: "memory", name: "Memory", icon: "HardDrive", metric: "Procurement Cost Index", past3m: "+15.0%", future3m: "+8.5%", trend: "Rising", driver: "Strict production control for price protection, HBM demand crowding out standard PC DRAM", priceTrend: [{ period: "25Q1", actual: 100 }, { period: "25Q2", actual: 105 }, { period: "25Q3", actual: 115 }, { period: "25Q4", actual: 125 }, { period: "26Q1", actual: 140 }, { period: "26Q2", actual: 152, forecast: 152 }, { period: "26Q3", forecast: 160 }, { period: "26Q4", forecast: 165 }] },
+  { id: "battery", name: "Power", icon: "BatteryCharging", metric: "Procurement Cost Index", past3m: "0.0%", future3m: "0.0%", trend: "Stable", driver: "Lithium and cell materials prices stabilizing at a low level", priceTrend: [{ period: "25Q1", actual: 100 }, { period: "25Q2", actual: 100 }, { period: "25Q3", actual: 98 }, { period: "25Q4", actual: 99 }, { period: "26Q1", actual: 99 }, { period: "26Q2", actual: 99, forecast: 99 }, { period: "26Q3", forecast: 99 }, { period: "26Q4", forecast: 100 }] },
+  { id: "chipset", name: "Core Chipsets", icon: "Microchip", metric: "Procurement Cost Index", past3m: "-1.0%", future3m: "0.0%", trend: "Stable", driver: "Mature node foundry capacity remains ample, price equilibrium reached", priceTrend: [{ period: "25Q1", actual: 100 }, { period: "25Q2", actual: 99 }, { period: "25Q3", actual: 98 }, { period: "25Q4", actual: 98 }, { period: "26Q1", actual: 97 }, { period: "26Q2", actual: 96, forecast: 96 }, { period: "26Q3", forecast: 96 }, { period: "26Q4", forecast: 96 }] },
+];

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+
 import { 
   Card, 
   CardContent, 
@@ -50,154 +50,21 @@ import {
   SelectValue,
 } from "./ui/select";
 import { motion } from "motion/react";
-
-// --- Mock Data ---
-
-const SERIES_LIST = ["ThinkPad", "Yoga", "Legion", "ThinkBook", "Xiaoxin"] as const;
-
-const kpiData = [
-  { 
-    title: "Target Completion Rate", 
-    value: "97.0%", 
-    unit: "%",
-    target: "Annual target: 20M units",
-    current: "YTD: 19.4M",
-    description: "The percentage of shipment targets achieved for the current fiscal year.",
-    yoy: "-0.5pct", 
-    qoq: "+1.2pct", 
-    isPositive: false,
-    icon: Target,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    isCompletion: true,
-    completion: 97
-  },
-  { 
-    title: "Shipment Volume", 
-    value: "19.4M", 
-    unit: "Units",
-    target: 20000000,
-    current: 19400000,
-    yoy: "+10.2%", 
-    qoq: "+2.5%", 
-    isPositive: true,
-    icon: Laptop,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50"
-  },
-  { 
-    title: "Total Revenue (REV)", 
-    value: "$17.4", 
-    unit: "B",
-    target: 18000000000,
-    current: 17400000000,
-    yoy: "+11.0%", 
-    qoq: "+3.1%", 
-    isPositive: true,
-    icon: Wallet,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50"
-  },
-  { 
-    title: "Avg. Unit Retail (AUR)", 
-    value: "$898", 
-    unit: "USD",
-    yoy: "-6.8%", 
-    qoq: "-1.2%", 
-    isPositive: false,
-    icon: CreditCard,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50"
-  },
-  { 
-    title: "Gross Margin", 
-    value: "18.2%", 
-    unit: "%",
-    yoy: "+0.5pct", 
-    qoq: "+0.1pct", 
-    isPositive: true,
-    icon: Percent,
-    color: "text-violet-600",
-    bgColor: "bg-violet-50"
-  },
-  { 
-    title: "Net Profit", 
-    value: "$1.39", 
-    unit: "B",
-    yoy: "+36.0%", 
-    qoq: "+5.2%", 
-    isPositive: true,
-    icon: TrendingUp,
-    color: "text-rose-600",
-    bgColor: "bg-rose-50"
-  },
-  { 
-    title: "Active SKUs", 
-    value: "248", 
-    unit: "Items",
-    yoy: "+5", 
-    qoq: "+2", 
-    isPositive: true,
-    icon: Box,
-    color: "text-slate-600",
-    bgColor: "bg-slate-50"
-  },
-];
-
-const performanceTrends = [
-  { month: "24-Oct", shipment: 1.45, rev: 92, aur: 6340, margin: 17.8 },
-  { month: "24-Nov", shipment: 1.58, rev: 101, aur: 6390, margin: 17.9 },
-  { month: "24-Dec", shipment: 1.82, rev: 115, aur: 6320, margin: 18.1 },
-  { month: "25-Jan", shipment: 1.52, rev: 95, aur: 6250, margin: 18.2 },
-  { month: "25-Feb", shipment: 1.48, rev: 92, aur: 6215, margin: 18.0 },
-  { month: "25-Mar", shipment: 1.65, rev: 103, aur: 6245, margin: 18.1 },
-  { month: "25-Apr", shipment: 1.62, rev: 102, aur: 6300, margin: 18.3 },
-  { month: "25-May", shipment: 1.70, rev: 108, aur: 6350, margin: 18.4 },
-  { month: "25-Jun", shipment: 1.95, rev: 122, aur: 6255, margin: 18.2 },
-  { month: "25-Jul", shipment: 1.68, rev: 104, aur: 6190, margin: 18.0 },
-  { month: "25-Aug", shipment: 1.75, rev: 110, aur: 6285, margin: 18.1 },
-  { month: "25-Sep", shipment: 1.94, rev: 121.9, aur: 6286, margin: 18.2 },
-];
-
-const costData = [
-  { name: "Components", value: 72, color: "#ef4444" },
-  { name: "Manufacturing", value: 10, color: "#3b82f6" },
-  { name: "Marketing", value: 8, color: "#10b981" },
-  { name: "R&D", value: 7, color: "#f59e0b" },
-  { name: "Logistics", value: 3, color: "#6366f1" },
-];
-
-const profitFunnelData = [
-  { value: 121.9, name: "Revenue (REV)", fill: "#1e293b" },
-  { value: 99.7, name: "COGS", fill: "#475569" },
-  { value: 22.2, name: "Gross Profit (GP)", fill: "#dc2626" },
-  { value: 12.5, name: "Expenses (Exp)", fill: "#f87171" },
-  { value: 9.75, name: "Net Profit (NP)", fill: "#ef4444" },
-];
-
-const channelComparison = [
-  { channel: "Online Direct / E-com", value: 8.7, rev: 54.8, aur: 6300, margin: 19.5, yoy: "+14%", conv: "4.2%" },
-  { channel: "Offline Retail / Agency", value: 10.7, rev: 67.1, aur: 6270, margin: 17.1, yoy: "+7%", conv: "12.5%" },
-];
-
-const channelDetailed = [
-  { name: "JD.com", value: 35, color: "#ef4444" },
-  { name: "Lenovo.com", value: 5, color: "#1e293b" },
-  { name: "Tmall", value: 12, color: "#ff0036" },
-  { name: "Retail Stores", value: 28, color: "#3b82f6" },
-  { name: "Enterprise Procurement", value: 20, color: "#6366f1" },
-];
-
-const topProducts = [
-  { name: "ThinkPad X1 Carbon Gen 12", series: "ThinkPad", sales: "852K", growth: "+12%", price: "$1,399" },
-  { name: "Legion Pro 7i Gen 9", series: "Legion", sales: "642K", growth: "+45%", price: "$2,299" },
-  { name: "Xiaoxin Pro 16 AI", series: "Xiaoxin", sales: "520K", growth: "+22%", price: "$799" },
-  { name: "ThinkBook 14p Gen 5", series: "ThinkBook", sales: "428K", growth: "+18%", price: "$749" },
-  { name: "Yoga Book 9i", series: "Yoga", sales: "156K", growth: "+35%", price: "$1,999" },
-];
+import { useProductBusinessData } from "../hooks/useProductBusinessData";
 
 // --- Components ---
 
+const ICON_MAP = {
+  Laptop,
+  TrendingUp,
+  Box,
+  Target,
+  CreditCard,
+  Percent,
+  Wallet,
+  ShoppingBag,
+  Store,
+};
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -241,102 +108,18 @@ const ChannelTooltip = ({ active, payload }: any) => {
 };
 
 export function ProductDataView() {
-  const [selectedYear, setSelectedYear] = useState("2025");
-  const [selectedMonth, setSelectedMonth] = useState("09");
-  const [selectedSeries, setSelectedSeries] = useState<string[]>([...SERIES_LIST]);
-
-  const toggleSeries = (id: (typeof SERIES_LIST)[number]) => {
-    setSelectedSeries(prev => 
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    );
-  };
-
-  const years = ["2025", "2024"];
-  const monthsByYear: Record<string, string[]> = {
-    "2025": ["09", "08", "07", "06", "05", "04", "03", "02", "01"],
-    "2024": ["12", "11", "10"],
-  };
-
-  /**
-   * Data Simulation & Filtering Logic
-   * We use the selected filters to derive the data displayed in the charts.
-   */
-  const derivedData = React.useMemo(() => {
-    // 1. Calculate a general "Volume Factor" based on filter selection.
-    // Selecting fewer series reduces the total volume.
-    const seriesFactor = selectedSeries.length / SERIES_LIST.length;
-    // Each month has a natural fluctuation (simulated).
-    const monthIndex = parseInt(selectedMonth);
-    const monthFluctuation = 0.85 + (Math.sin(monthIndex * 0.5) * 0.15); // Simple oscillation
-    const baseFactor = seriesFactor * monthFluctuation * (selectedYear === "2025" ? 1.05 : 0.9);
-
-    // 2. Performance Trends (Sliding window of 12 months based on selection)
-    // For this simulation, we'll just adjust the base performanceTrends data.
-    const filteredTrends = performanceTrends.map(item => ({
-      ...item,
-      shipment: parseFloat((item.shipment * baseFactor).toFixed(2)),
-      rev: parseFloat((item.rev * baseFactor).toFixed(1)),
-      aur: Math.round(item.aur * (0.95 + seriesFactor * 0.1)), // AUR changes slightly with mix
-      margin: parseFloat((item.margin * (0.98 + (monthIndex % 4) * 0.01)).toFixed(1)),
-    }));
-
-    // 3. Top Products (Filter by selected series)
-    const filteredTopProducts = topProducts
-      .filter(p => selectedSeries.includes(p.series))
-      .map(p => ({
-        ...p,
-        sales: `${Math.round(parseInt(p.sales.replace('K', '')) * baseFactor)}K`,
-      }));
-
-    // 4. Cost Data (Adjust ratios slightly based on scale)
-    const filteredCostData = costData.map(c => ({
-      ...c,
-      value: c.name === "Components" 
-        ? c.value + (1 - seriesFactor) * 2 
-        : c.value - (1 - seriesFactor) * 0.5
-    }));
-
-    // 5. Profit Funnel (Scale by baseFactor)
-    const filteredProfitFunnel = profitFunnelData.map(f => ({
-      ...f,
-      value: parseFloat((f.value * baseFactor).toFixed(2)),
-    }));
-
-    // 6. Channel Data (Scale by baseFactor)
-    const filteredChannelComparison = channelComparison.map(c => ({
-      ...c,
-      value: parseFloat((c.value * baseFactor).toFixed(1)),
-      rev: parseFloat((c.rev * baseFactor).toFixed(1)),
-    }));
-
-    const filteredChannelDetailed = channelDetailed.map(c => ({
-      ...c,
-      value: Math.round(c.value * (0.8 + seriesFactor * 0.4)), // Simulated shift
-    }));
-    // Normalize percentages to 100
-    const totalWeight = filteredChannelDetailed.reduce((sum, item) => sum + item.value, 0);
-    const normalizedChannelDetailed = filteredChannelDetailed.map(item => ({
-      ...item,
-      value: Math.round((item.value / totalWeight) * 100),
-    }));
-
-    return {
-      trends: filteredTrends,
-      topProducts: filteredTopProducts,
-      cost: filteredCostData,
-      funnel: filteredProfitFunnel,
-      channelSummary: filteredChannelComparison,
-      channelDetail: normalizedChannelDetailed,
-      // Derived bottom KPIs
-      bottomKPIs: [
-        { label: "E-com Avg Retail", value: `$${Math.round(902 * (0.98 + baseFactor * 0.04))}`, yoy: "+4.2%", icon: ShoppingBag, color: "text-blue-600", desc: "Online direct AUR performance" },
-        { label: "Retail Avg Retail", value: `$${Math.round(895 * (0.97 + baseFactor * 0.06))}`, yoy: "-2.5%", icon: Store, color: "text-amber-600", desc: "Offline partner network AUR" },
-        { label: "Online Efficiency", value: `${(19.5 * (0.99 + monthIndex * 0.001)).toFixed(1)}%`, yoy: "+1.2pct", icon: Percent, color: "text-emerald-600", desc: "Gross profit margin online" },
-        { label: "Partner Profitability", value: `${(17.1 * (0.98 + monthIndex * 0.002)).toFixed(1)}%`, yoy: "-0.5pct", icon: Percent, color: "text-rose-600", desc: "Gross profit margin offline" },
-      ]
-    };
-  }, [selectedYear, selectedMonth, selectedSeries]);
-
+  const {
+    selectedYear,
+    selectedMonth,
+    selectedSeries,
+    seriesOptions,
+    years,
+    monthsByYear,
+    derivedData,
+    setSelectedYear,
+    setSelectedMonth,
+    toggleSeries,
+  } = useProductBusinessData();
   return (
     <div className="space-y-6 pb-12 overflow-x-hidden">
       {/* Header & Panoramic Operational KPI Cards (Always at Top) */}
@@ -361,7 +144,7 @@ export function ProductDataView() {
 
         {/* Panoramic Operational KPI Cards (STATIC as requested) */}
         <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-1 px-1">
-           {kpiData.map((kpi, idx) => (
+           {derivedData.kpiCards.map((kpi, idx) => { const Icon = ICON_MAP[kpi.icon as keyof typeof ICON_MAP] ?? Box; return (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -373,7 +156,7 @@ export function ProductDataView() {
                     <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">{kpi.title}</p>
                        <div className={`p-2.5 rounded-xl transition-colors ${kpi.bgColor} ${kpi.color} group-hover:bg-slate-900 group-hover:text-white`}>
-                          <kpi.icon className="h-4 w-4" />
+                          <Icon className="h-4 w-4" />
                        </div>
                     </CardHeader>
                     <CardContent>
@@ -423,7 +206,7 @@ export function ProductDataView() {
                     </CardContent>
                  </Card>
               </motion.div>
-           ))}
+           ); })}
         </div>
       </div>
 
@@ -438,7 +221,7 @@ export function ProductDataView() {
                     <Badge variant="secondary" className="text-[9px] font-bold py-0 h-4 bg-slate-100 text-slate-600 border-none px-2">{selectedSeries.length} Selected</Badge>
                  </div>
                  <div className="flex flex-wrap gap-2">
-                    {SERIES_LIST.map(series => (
+                    {seriesOptions.map(series => (
                        <button
                           key={series}
                           onClick={() => toggleSeries(series)}
@@ -733,7 +516,7 @@ export function ProductDataView() {
                   <div key={idx} className="p-6 rounded-3xl bg-slate-50 border border-slate-100 group hover:bg-white hover:shadow-2xl hover:border-slate-200 transition-all duration-500">
                      <div className="flex items-center justify-between mb-4">
                         <div className={`p-2.5 rounded-xl bg-white shadow-sm ring-1 ring-slate-100 group-hover:scale-110 transition-transform`}>
-                           <item.icon className={`h-4 w-4 ${item.color}`} />
+                           {React.createElement(ICON_MAP[item.icon as keyof typeof ICON_MAP] ?? Box, { className: `h-4 w-4 ${item.color}` })}
                         </div>
                         <ChevronRight className="h-3 w-3 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
                      </div>
@@ -741,7 +524,7 @@ export function ProductDataView() {
                      <div className="text-2xl font-black text-slate-900 mb-1">{item.value}</div>
                      <p className="text-[10px] text-slate-400 font-medium mb-3 italic leading-none">{item.desc}</p>
                      <div className={`text-[11px] font-black ${item.yoy.startsWith('+') ? 'text-emerald-500' : 'text-rose-500'} flex items-center gap-1.5`}>
-                       <span className="text-[8px]">{item.yoy.startsWith('+') ? '▲' : '▼'}</span>
+                       <span className="text-[8px]">{item.yoy.startsWith('+') ? '+' : '-'}</span>
                        {item.yoy} 
                        <span className="text-slate-300 font-bold uppercase tracking-widest text-[9px] px-1 ml-auto">YoY Delta</span>
                      </div>
@@ -753,3 +536,6 @@ export function ProductDataView() {
     </div>
   );
 }
+
+
+

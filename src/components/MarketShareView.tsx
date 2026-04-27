@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo, useState } from "react";
+
 import { 
   Card, 
   CardContent, 
@@ -39,67 +39,13 @@ import {
 } from "./ui/select";
 import { Badge } from "./ui/badge";
 import { motion } from "motion/react";
-
-// --- Types ---
-interface ShareData {
-  quarter: string;
-  brand: string;
-  region: string;
-  share: number;
-}
-
-// --- Constants ---
-const BRANDS = ["Lenovo", "HP", "Dell", "Apple", "Others"] as const;
-const QUARTERS = ["2024-Q1", "2024-Q2", "2024-Q3", "2024-Q4", "2025-Q1", "2025-Q2", "2025-Q3", "2025-Q4", "2026-Q1"] as const;
-const REGIONS = ["Global", "China", "North America", "Europe", "Asia Pacific", "Latin America", "Africa"] as const;
-
-const BRAND_COLORS: Record<string, string> = {
-  "Lenovo": "#dc2626", // Red-600
-  "HP": "#3b82f6",    // Blue-500
-  "Dell": "#10b981",  // Emerald-500
-  "Apple": "#6366f1",  // Indigo-500
-  "Others": "#94a3b8"  // Slate-400
-};
-
-// --- Mock Data Generator ---
-const generateShareHistory = () => {
-  const data: ShareData[] = [];
-  QUARTERS.forEach(q => {
-    REGIONS.forEach(r => {
-      let total = 0;
-      const values = BRANDS.map(b => {
-        let baseVal: number;
-        // Introduce regional variance
-        const regionBias = (r === "China" && b === "Lenovo") ? 15 : (r === "North America" && b === "Apple") ? 10 : 0;
-        
-        if (b === "Lenovo") baseVal = 23 + regionBias + Math.random() * 3;
-        else if (b === "HP") baseVal = 18 + Math.random() * 2;
-        else if (b === "Dell") baseVal = 15 + Math.random() * 2;
-        else if (b === "Apple") baseVal = 8 + regionBias + Math.random() * 2;
-        else baseVal = 30 + Math.random() * 5;
-        
-        total += baseVal;
-        return { brand: b, share: baseVal };
-      });
-      
-      values.forEach(v => {
-        data.push({ quarter: q, region: r, brand: v.brand, share: (v.share / total) * 100 });
-      });
-    });
-  });
-  return data;
-};
-
-const SHARE_HISTORY = generateShareHistory();
-
-const SEGMENT_HOTMAP_DATA = [
-  { group: "ToB Commercial", sub: "Enterprise", lenovoShare: 42.5, growth: 5.2, intensity: 0.9 },
-  { group: "ToB Commercial", sub: "SME", lenovoShare: 31.8, growth: 3.8, intensity: 0.7 },
-  { group: "ToB Commercial", sub: "Gov/Edu", lenovoShare: 28.4, growth: 2.1, intensity: 0.6 },
-  { group: "ToC Consumer", sub: "Gaming", lenovoShare: 29.5, growth: 8.4, intensity: 0.8 },
-  { group: "ToC Consumer", sub: "Pro/Creative", lenovoShare: 18.2, growth: 12.1, intensity: 0.5 },
-  { group: "ToC Consumer", sub: "Mainstream", lenovoShare: 21.6, growth: -1.2, intensity: 0.4 },
-];
+import {
+  MARKET_SHARE_BRANDS as BRANDS,
+  MARKET_SHARE_BRAND_COLORS as BRAND_COLORS,
+  MARKET_SHARE_QUARTERS as QUARTERS,
+  MARKET_SHARE_REGIONS as REGIONS,
+} from "../mock/marketShare";
+import { useMarketShareData } from "../hooks/useMarketShareData";
 
 // --- Components ---
 
@@ -126,72 +72,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function MarketShareView() {
-  const [selectedQuarter, setSelectedQuarter] = useState<string>("2026-Q1");
-  const [selectedRegionEquilibrium, setSelectedRegionEquilibrium] = useState<string>("Global");
-  const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
-
-  // Derived: Current Quarter Snapshot (Global for overall metrics)
-  const currentSnapshotGlobal = useMemo(() => {
-    return BRANDS.map(brand => {
-      const entry = SHARE_HISTORY.find(d => d.quarter === selectedQuarter && d.brand === brand && d.region === "Global");
-      const prevEntry = SHARE_HISTORY.find(d => {
-        const idx = QUARTERS.indexOf(selectedQuarter as any);
-        return idx > 0 && d.quarter === QUARTERS[idx - 1] && d.brand === brand && d.region === "Global";
-      });
-      return {
-        name: brand,
-        value: entry?.share || 0,
-        change: entry && prevEntry ? entry.share - prevEntry.share : 0
-      };
-    }).sort((a, b) => b.value - a.value);
-  }, [selectedQuarter]);
-
-  // Specific Snapshot for the Equilibrium module (Section-specific region)
-  const equilibriumSnapshot = useMemo(() => {
-    return BRANDS.map(brand => {
-      const entry = SHARE_HISTORY.find(d => d.quarter === selectedQuarter && d.brand === brand && d.region === selectedRegionEquilibrium);
-      const prevEntry = SHARE_HISTORY.find(d => {
-        const idx = QUARTERS.indexOf(selectedQuarter as any);
-        return idx > 0 && d.quarter === QUARTERS[idx - 1] && d.brand === brand && d.region === selectedRegionEquilibrium;
-      });
-      return {
-        name: brand,
-        value: entry?.share || 0,
-        change: entry && prevEntry ? entry.share - prevEntry.share : 0
-      };
-    }).sort((a, b) => b.value - a.value);
-  }, [selectedQuarter, selectedRegionEquilibrium]);
-
-  // Strategic Calculation: Relative Market Share (RMS)
-  // RMS = (Our Share) / (Nearest Competitor's Share)
-  const rmsMetrics = useMemo(() => {
-    const lenovo = currentSnapshotGlobal.find(s => s.name === "Lenovo");
-    const others = currentSnapshotGlobal.filter(s => s.name !== "Lenovo" && s.name !== "Others");
-    const leader = others[0]; // Nearest strong competitor
-    
-    if (!lenovo || !leader) return { ratio: 0, status: "Unknown" };
-    
-    const ratio = lenovo.value / leader.value;
-    return {
-      ratio,
-      leaderName: leader.name,
-      status: ratio > 1 ? "Market Leader" : "Market Challenger",
-      description: ratio > 1 
-        ? `Lenovo holds ${ratio.toFixed(2)}x the share of the nearest rival (${leader.name}).`
-        : `Lenovo holds ${(ratio * 100).toFixed(1)}% of the leader's (${leader.name}) footprint.`
-    };
-  }, [currentSnapshotGlobal]);
-
-  const trendsChartData = useMemo(() => {
-    return QUARTERS.map(q => {
-      const entry: any = { quarter: q };
-      BRANDS.forEach(b => {
-        entry[b] = SHARE_HISTORY.find(d => d.quarter === q && d.brand === b && d.region === "Global")?.share || 0;
-      });
-      return entry;
-    });
-  }, []);
-
+  const {
+    selectedQuarter,
+    selectedRegionEquilibrium,
+    hoveredBrand,
+    currentSnapshotGlobal,
+    equilibriumSnapshot,
+    rmsMetrics,
+    trendsChartData,
+    segmentHotmapRows,
+    setSelectedQuarter,
+    setSelectedRegionEquilibrium,
+    setHoveredBrand,
+  } = useMarketShareData();
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
       {/* Header */}
@@ -353,7 +246,7 @@ export function MarketShareView() {
                   <div className="text-center">Opportunity Index</div>
                </div>
                {/* Table Rows (Heatmapped) */}
-               {SEGMENT_HOTMAP_DATA.map((row, idx) => (
+               {segmentHotmapRows.map((row, idx) => (
                  <div key={idx} className="glass-row grid grid-cols-4 items-center bg-white hover:bg-slate-50 transition-all cursor-crosshair">
                     <div className="px-6 py-4 flex flex-col border-r border-slate-50">
                        <span className={`text-[9px] font-black uppercase tracking-tighter mb-1 ${row.group.includes("Commercial") ? "text-blue-500" : "text-amber-500"}`}>
@@ -500,3 +393,4 @@ export function MarketShareView() {
     </div>
   );
 }
+
