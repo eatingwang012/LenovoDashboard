@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { 
   BarChart, 
   Bar, 
@@ -39,90 +39,15 @@ import {
   ExternalLink
 } from "lucide-react";
 import { AnimatePresence } from 'motion/react';
-
-// --- Types & Interfaces ---
-interface ShipmentData {
-  quarter: string;
-  brand: string;
-  model: string;
-  region: string;
-  type: string;
-  aur: string;
-  volume: number;
-  prevYearVolume: number;
-  prevQuarterVolume: number;
-}
-
-// --- Mock Data Constants ---
-const BRANDS = ["Lenovo", "HP", "Dell", "Apple"] as const;
-const REGIONS = ["Global", "China", "North America", "EMEA", "Asia Pacific", "Latin America"] as const;
-const QUARTERS = ["2024-Q1", "2024-Q2", "2024-Q3", "2024-Q4", "2025-Q1", "2025-Q2", "2025-Q3", "2025-Q4", "2026-Q1"] as const;
-const AUR_SEGMENTS = ["<$600", "$600–1000", "$1000–1500", "$1500+"] as const;
-
-const MODEL_MAP: Record<string, string[]> = {
-  "Lenovo": ["ThinkPad", "Yoga", "Legion", "IdeaPad"],
-  "HP": ["HP Spectre", "HP Envy", "HP Pavilion", "HP Omen"],
-  "Dell": ["XPS", "Latitude", "Inspiron", "Alienware"],
-  "Apple": ["MacBook Air", "MacBook Pro"]
-};
-
-const BRAND_COLORS: Record<string, string> = {
-  "Lenovo": "#dc2626", // Red-600
-  "HP": "#3b82f6",    // Blue-500
-  "Dell": "#10b981",  // Emerald-500
-  "Apple": "#64748b"  // Slate-500
-};
-
-// --- Mock Data Generator ---
-const generateMockData = (): ShipmentData[] => {
-  const data: ShipmentData[] = [];
-  
-  QUARTERS.forEach(quarter => {
-    REGIONS.forEach(region => {
-      BRANDS.forEach(brand => {
-        const models = MODEL_MAP[brand];
-        models.forEach(model => {
-          // Seasonal & Brand Multipliers
-          const base = 5000 + Math.random() * 5000;
-          const brandMult = brand === "Lenovo" ? 1.25 : 0.95;
-          const regionMult = region === "China" && brand === "Lenovo" ? 1.6 : 1.0;
-          
-          const volume = Math.floor(base * brandMult * regionMult);
-          const prevYearVolume = Math.floor(volume * (0.85 + Math.random() * 0.2));
-          const prevQuarterVolume = Math.floor(volume * (0.9 + Math.random() * 0.15));
-
-          // Assign Type based on Model
-          let type = "Thin & Light";
-          if (model.includes("ThinkPad") || model.includes("Latitude") || model.includes("Pro")) type = "Business";
-          if (model.includes("Legion") || model.includes("Alienware") || model.includes("Omen")) type = "Gaming";
-
-          // Assign AUR based on Model
-          let aur: typeof AUR_SEGMENTS[number] = "$600–1000";
-          if (model.includes("XPS") || model.includes("Yoga") || model.includes("Spectre") || model.includes("Pro")) aur = "$1000–1500";
-          if (model === "MacBook Pro" || model === "MacBook Air") aur = "$1500+";
-          if (model.includes("IdeaPad") || model.includes("Inspiron") || model.includes("Pavilion")) aur = "<$600";
-
-          data.push({
-            quarter,
-            brand,
-            model,
-            region,
-            type,
-            aur,
-            volume,
-            prevYearVolume,
-            prevQuarterVolume
-          });
-        });
-      });
-    });
-  });
-  
-  return data;
-};
-
-const RAW_DATA = generateMockData();
-
+import {
+  SHIPMENT_AUR_SEGMENTS as AUR_SEGMENTS,
+  SHIPMENT_BRANDS as BRANDS,
+  SHIPMENT_BRAND_COLORS as BRAND_COLORS,
+  SHIPMENT_QUARTERS as QUARTERS,
+  SHIPMENT_RAW_DATA as RAW_DATA,
+  SHIPMENT_REGIONS as REGIONS,
+} from "../mock/shipmentLandscape";
+import { useShipmentLandscapeData } from "../hooks/useShipmentLandscapeData";
 // --- Components ---
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -149,137 +74,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function ShipmentLandscapeView() {
-  // --- States ---
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([...BRANDS]);
-  const [selectedModel, setSelectedModel] = useState<string>("All Models");
-  const [selectedQuarter, setSelectedQuarter] = useState<string>("2025-Q1");
-  const [selectedRegion, setSelectedRegion] = useState<string>("Global");
-  const [selectedPriceSegment, setSelectedPriceSegment] = useState<string>("All Segments");
-  const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
-  const [drillDownBrand, setDrillDownBrand] = useState<string | null>(null);
-
-  // --- Derived Data ---
-  const filteredData = useMemo(() => {
-    return RAW_DATA.filter(d => 
-      selectedBrands.includes(d.brand) &&
-      (selectedModel === "All Models" || d.model === selectedModel) &&
-      (selectedQuarter === "All Time" || d.quarter === selectedQuarter) &&
-      (selectedRegion === "Global" ? true : d.region === selectedRegion) &&
-      (selectedPriceSegment === "All Segments" || d.aur === selectedPriceSegment)
-    );
-  }, [selectedBrands, selectedModel, selectedQuarter, selectedRegion, selectedPriceSegment]);
-
-  // Total volume in the selected geographic/temporal market context (for share calibration)
-  const marketContextTotal = useMemo(() => {
-    return RAW_DATA
-      .filter(d => 
-        (selectedQuarter === "All Time" || d.quarter === selectedQuarter) &&
-        (selectedRegion === "Global" ? true : d.region === selectedRegion)
-      )
-      .reduce((acc, curr) => acc + curr.volume, 0);
-  }, [selectedQuarter, selectedRegion]);
-
-  const availableModels = useMemo(() => {
-    const models: string[] = ["All Models"];
-    selectedBrands.forEach(brand => {
-      models.push(...MODEL_MAP[brand]);
-    });
-    return Array.from(new Set(models));
-  }, [selectedBrands]);
-
-  // Module 1 & 2: Summary metrics and Cross-Brand benchmarking
-  const summaryMetrics = useMemo(() => {
-    const current = filteredData.reduce((acc, curr) => acc + curr.volume, 0);
-    const prevYear = filteredData.reduce((acc, curr) => acc + curr.prevYearVolume, 0);
-    const prevQuarter = filteredData.reduce((acc, curr) => acc + curr.prevQuarterVolume, 0);
-    
-    const yoy = prevYear > 0 ? ((current - prevYear) / prevYear) * 100 : 0;
-    const qoq = prevQuarter > 0 ? ((current - prevQuarter) / prevQuarter) * 100 : 0;
-    
-    const brandStats = selectedBrands.map(brand => {
-      const bData = filteredData.filter(d => d.brand === brand);
-      const volume = bData.reduce((acc, curr) => acc + curr.volume, 0);
-      const pYear = bData.reduce((acc, curr) => acc + curr.prevYearVolume, 0);
-      const pQuarter = bData.reduce((acc, curr) => acc + curr.prevQuarterVolume, 0);
-      
-      return { 
-        brand, 
-        volume, 
-        share: marketContextTotal > 0 ? (volume / marketContextTotal) * 100 : 0,
-        yoy: pYear > 0 ? ((volume - pYear) / pYear) * 100 : 0,
-        qoq: pQuarter > 0 ? ((volume - pQuarter) / pQuarter) * 100 : 0
-      };
-    });
-    
-    return {
-      current,
-      yoy,
-      qoq,
-      brandShares: brandStats
-    };
-  }, [filteredData, selectedBrands, marketContextTotal]);
-
-  // Module 3: Treemap Data
-  const treemapData = useMemo(() => {
-    const brandsToUse = drillDownBrand ? [drillDownBrand] : selectedBrands;
-    return brandsToUse.map(brand => ({
-      name: brand,
-      children: MODEL_MAP[brand].map(model => {
-        const volume = filteredData
-          .filter(d => d.brand === brand && d.model === model)
-          .reduce((acc, curr) => acc + curr.volume, 0);
-        return { name: model, size: volume, brand };
-      }).filter(m => m.size > 0)
-    })).filter(b => b.children.length > 0);
-  }, [filteredData, selectedBrands, drillDownBrand]);
-
-  // Module 4: Price Segment (AUR)
-  const priceData = useMemo(() => {
-    return AUR_SEGMENTS.map(aur => {
-      const entry: any = { aur };
-      selectedBrands.forEach(brand => {
-        entry[brand] = filteredData
-          .filter(d => d.brand === brand && d.aur === aur)
-          .reduce((acc, curr) => acc + curr.volume, 0);
-      });
-      return entry;
-    });
-  }, [filteredData, selectedBrands]);
-
-  // Module 5: Regional Market
-  const regionalPerformance = useMemo(() => {
-    return REGIONS.filter(r => r !== "Global").map(region => {
-      const regionData = RAW_DATA.filter(d => d.region === region && d.quarter === selectedQuarter);
-      const totalRegionVolume = regionData.reduce((acc, curr) => acc + curr.volume, 0);
-      
-      const bStats = BRANDS.map(brand => {
-        const volume = regionData.filter(d => d.brand === brand).reduce((acc, curr) => acc + curr.volume, 0);
-        return { brand, volume, share: totalRegionVolume > 0 ? (volume / totalRegionVolume) * 100 : 0 };
-      });
-      
-      const sorted = [...bStats].sort((a, b) => b.share - a.share);
-      const lenovoStat = bStats.find(b => b.brand === "Lenovo");
-      const leader = sorted[0];
-      const isLenovoLeader = leader.brand === "Lenovo";
-      const gap = isLenovoLeader ? (leader.share - (sorted[1]?.share || 0)) : leader.share - (lenovoStat?.share || 0);
-
-      return {
-        region,
-        brands: bStats,
-        leader: leader.brand,
-        lenovoGap: gap,
-        isLenovoLeader
-      };
-    });
-  }, [selectedQuarter]);
-
-  // --- Handlers ---
-  const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev => 
-      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-    );
-  };
-
+  const {
+    selectedBrands,
+    selectedModel,
+    selectedQuarter,
+    selectedRegion,
+    selectedPriceSegment,
+    hoveredBrand,
+    drillDownBrand,
+    filteredData,
+    marketContextTotal,
+    availableModels,
+    summaryMetrics,
+    treemapData,
+    priceData,
+    regionalPerformance,
+    setSelectedModel,
+    setSelectedQuarter,
+    setSelectedRegion,
+    setSelectedPriceSegment,
+    setHoveredBrand,
+    setDrillDownBrand,
+    toggleBrand,
+  } = useShipmentLandscapeData();
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
       {/* Title & Metadata */}
@@ -828,3 +645,4 @@ const ChartDecoration = () => (
     <circle cx="150" cy="100" r="40" stroke="white" strokeOpacity="0.1" strokeWidth="20" />
   </svg>
 );
+

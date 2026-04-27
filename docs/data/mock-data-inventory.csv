@@ -1,0 +1,83 @@
+page,module,data_object,field_name,field_type,field_meaning_cn,example_value,source_type,future_api_field
+Shipment Landscape,Filter,ShipmentLandscapeFilters,selectedBrands,string[],选中品牌列表,"[Lenovo,HP]",filter,selectedBrands
+Shipment Landscape,Filter,ShipmentLandscapeFilters,selectedModel,string,选中机型,All Models,filter,selectedModel
+Shipment Landscape,Filter,ShipmentLandscapeFilters,selectedQuarter,string,选中季度,2025-Q1,filter,selectedQuarter
+Shipment Landscape,Filter,ShipmentLandscapeFilters,selectedRegion,string,选中区域,Global,filter,selectedRegion
+Shipment Landscape,Filter,ShipmentLandscapeFilters,selectedPriceSegment,string,选中价格带,All Segments,filter,selectedPriceSegment
+Shipment Landscape,Raw,ShipmentRecord,quarter,string,财季,2025-Q1,raw,quarter
+Shipment Landscape,Raw,ShipmentRecord,brand,string,品牌,Lenovo,raw,brand
+Shipment Landscape,Raw,ShipmentRecord,model,string,机型系列,ThinkPad,raw,model
+Shipment Landscape,Raw,ShipmentRecord,region,string,区域,China,raw,region
+Shipment Landscape,Raw,ShipmentRecord,aur,string,AUR 价格带,$1000-$1500,raw,aur
+Shipment Landscape,Raw,ShipmentRecord,volume,number,出货量,10482,raw,volume
+Shipment Landscape,Derived,ShipmentSummaryMetrics,current,number,筛选后市场总量,123456,derived,current
+Shipment Landscape,Derived,ShipmentSummaryMetrics,yoy,number,同比增速,8.4,derived,yoy
+Shipment Landscape,Derived,ShipmentSummaryMetrics,qoq,number,环比增速,2.1,derived,qoq
+Market Share,Filter,MarketShareFilters,selectedQuarter,string,选中季度,2026-Q1,filter,selectedQuarter
+Market Share,Filter,MarketShareFilters,selectedRegionEquilibrium,string,选中区域,Global,filter,selectedRegionEquilibrium
+Market Share,Raw,ShareHistoryRecord,quarter,string,财季,2026-Q1,raw,quarter
+Market Share,Raw,ShareHistoryRecord,brand,string,品牌,Apple,raw,brand
+Market Share,Raw,ShareHistoryRecord,region,string,区域,North America,raw,region
+Market Share,Raw,ShareHistoryRecord,share,number,市场份额,18.7,raw,share
+Market Share,Raw,SegmentHotmapRow,group,string,一级细分市场,ToB Commercial,raw,group
+Market Share,Raw,SegmentHotmapRow,sub,string,二级细分市场,Enterprise,raw,sub
+Market Share,Raw,SegmentHotmapRow,lenovoShare,number,Lenovo 份额,42.5,raw,lenovoShare
+Market Share,Raw,SegmentHotmapRow,growth,number,增速,5.2,raw,growth
+Market Share,Raw,SegmentHotmapRow,intensity,number,机会强度,0.9,raw,intensity
+Market Share,Derived,RelativeMarketShareMetrics,ratio,number,相对市场份额指数,1.12,derived,ratio
+Market Share,Derived,RelativeMarketShareMetrics,status,string,市场地位,Market Leader,derived,status
+Product Business,Filter,ProductBusinessFilters,selectedYear,string,选中年份,2025,filter,selectedYear
+Product Business,Filter,ProductBusinessFilters,selectedMonth,string,选中月份,09,filter,selectedMonth
+Product Business,Filter,ProductBusinessFilters,selectedSeries,string[],选中系列,"[ThinkPad,Legion]",filter,selectedSeries
+Product Business,Raw,ProductKpiCard,title,string,KPI 名称,Shipment Volume,raw,title
+Product Business,Raw,ProductKpiCard,value,string,KPI 展示值,19.4M,raw,value
+Product Business,Raw,ProductKpiCard,yoy,string,同比,+10.2%,raw,yoy
+Product Business,Raw,ProductTrendPoint,shipment,number,月度出货量,1.94,raw,shipment
+Product Business,Raw,ProductTrendPoint,rev,number,月度营收,121.9,raw,rev
+Product Business,Raw,ProductTrendPoint,aur,number,月度 AUR,6286,raw,aur
+Product Business,Raw,ProductTrendPoint,margin,number,月度毛利率,18.2,raw,margin
+Product Business,Raw,ProductCostRow,name,string,成本项,Components,raw,name
+Product Business,Raw,ProductCostRow,value,number,占比,72,raw,value
+Product Business,Raw,ProductFunnelRow,name,string,漏斗节点,Revenue (REV),raw,name
+Product Business,Raw,ProductFunnelRow,value,number,金额,121.9,raw,value
+Product Business,Raw,ProductChannelSummaryRow,channel,string,渠道大类,Online Direct / E-com,raw,channel
+Product Business,Raw,ProductChannelSummaryRow,value,number,出货量,8.7,raw,value
+Product Business,Raw,ProductTopItem,name,string,产品名称,ThinkPad X1 Carbon Gen 12,raw,name
+Product Business,Raw,ProductTopItem,sales,string,销量,852K,raw,sales
+Product Business,Derived,BottomKPI,label,string,渠道效率指标,E-com Avg Retail,derived,label
+Consumer Insights,Filter,ConsumerInsightsFilters,selectedYear,string,选中年份,2024,filter,selectedYear
+Consumer Insights,Filter,ConsumerInsightsFilters,selectedMonth,string,选中月份,06,filter,selectedMonth
+Consumer Insights,Filter,ConsumerInsightsFilters,selectedProduct,string,选中产品,All Products,filter,selectedProduct
+Consumer Insights,Filter,ConsumerInsightsFilters,selectedRegion,string,选中区域,All Regions,filter,selectedRegion
+Consumer Insights,Derived,DerivedFactor,combinedFactor,number,综合缩放系数,0.94,derived,combinedFactor
+Consumer Insights,Raw,ConsumerAgeGenderRow,age,string,年龄段,25-34,raw,age
+Consumer Insights,Raw,ConsumerAgeGenderRow,male,number,男性人数,2850,raw,male
+Consumer Insights,Raw,ConsumerAgeGenderRow,female,number,女性人数,2420,raw,female
+Consumer Insights,Raw,ConsumerOccupationRow,name,string,职业,Office Workers,raw,name
+Consumer Insights,Raw,ConsumerOccupationRow,value,number,人数,3420,raw,value
+Consumer Insights,Raw,ConsumerSegmentRow,segment,string,分群名称,High Value Customers,raw,segment
+Consumer Insights,Raw,ConsumerSegmentRow,count,number,分群人数,1850,raw,count
+Consumer Insights,Raw,ConsumerSegmentRow,avgSpend,string,客单价,$3,250,raw,avgSpend
+Consumer Insights,Raw,ConsumerDecisionFunnelStage,stage,string,漏斗阶段,Awareness,raw,stage
+Consumer Insights,Raw,ConsumerDecisionFunnelStage,value,number,阶段人数,10000,raw,value
+Consumer Insights,Raw,ConsumerDecisionFunnelStage,conversion,number,保留率,100,raw,conversion
+Consumer Insights,Raw,ConsumerDriverRow,factor,string,评论因子,Performance,raw,factor
+Consumer Insights,Raw,ConsumerDriverRow,mentions,number,提及量,4850,raw,mentions
+Consumer Insights,Raw,ConsumerDriverRow,sentiment,number,情感分,95,raw,sentiment
+Consumer Insights,Raw,ConsumerChannelRow,name,string,渠道名,JD.com,raw,name
+Consumer Insights,Raw,ConsumerChannelRow,value,number,渠道份额,42.5,raw,value
+Consumer Insights,Raw,ConsumerReplacementCycleRow,years,string,换机周期,2-3 years,raw,years
+Consumer Insights,Raw,ConsumerReplacementCycleRow,percentage,number,占比,35.8,raw,percentage
+Market Dynamics,Filter,MarketDynamicsFilters,selectedBrand,string,选中品牌,All,filter,selectedBrand
+Market Dynamics,Filter,MarketDynamicsFilters,startYear,string,开始年份,2024,filter,startYear
+Market Dynamics,Filter,MarketDynamicsFilters,startMonth,string,开始月份,10,filter,startMonth
+Market Dynamics,Filter,MarketDynamicsFilters,endYear,string,结束年份,2026,filter,endYear
+Market Dynamics,Filter,MarketDynamicsFilters,endMonth,string,结束月份,12,filter,endMonth
+Market Dynamics,Raw,MarketTimelineEvent,brand,string,事件品牌,Dell,raw,brand
+Market Dynamics,Raw,MarketTimelineEvent,product,string,事件名称,XPS 13,raw,product
+Market Dynamics,Raw,MarketTimelineEvent,monthOffset,number,相对月份偏移,-3,raw,monthOffset
+Market Dynamics,Raw,MarketTimelineEvent,type,string,事件类型,product,raw,type
+Market Dynamics,Raw,SupplyCategory,name,string,物料类别,CPU / Processors,raw,name
+Market Dynamics,Raw,SupplyCategory,past3m,string,近三个月变化,+2.5%,raw,past3m
+Market Dynamics,Raw,SupplyCategory,future3m,string,未来三个月预测,+1.0%,raw,future3m
+Market Dynamics,Raw,SupplyCategory,trend,string,趋势,Rising,raw,trend
